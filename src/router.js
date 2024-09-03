@@ -12,6 +12,10 @@ export const Router = () => {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
+          headerStyle: {
+            backgroundColor: "rgb(40, 40, 40)",
+          },
+          headerTintColor: "white",
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
 
@@ -25,6 +29,9 @@ export const Router = () => {
           },
           tabBarActiveTintColor: "green",
           tabBarInactiveTintColor: "gray",
+          tabBarStyle: {
+            backgroundColor: "rgb(40, 40, 40)",
+          },
         })}
       >
         <Tab.Screen
@@ -34,7 +41,13 @@ export const Router = () => {
             title: "Recipes",
           }}
         />
-        <Tab.Screen name="dummy" component={DummyScreen} />
+        <Tab.Screen
+          name="dummy"
+          component={DummyScreen}
+          options={{
+            title: "Dummy",
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
