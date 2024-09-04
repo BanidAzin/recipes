@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Text,
-  FlatList,
-} from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, FlatList } from "react-native";
 import { ChatInput } from "./components/ChatInput";
+import { ChatListHeader } from "./components/ChatListHeader";
+import { MessageItem } from "./components/MessageItem";
 
 export type Message = {
   id: string;
@@ -23,23 +19,12 @@ export const ChatScreen: React.FC = () => {
     setIsLoading(true);
   };
 
-  const renderMessages = ({ item }: { item: Message }) => {
-    if (item.from === "user") {
-      return (
-        <View
-          style={{
-            backgroundColor: "rgb(0, 132, 255)",
-            padding: 10,
-            margin: 5,
-            borderRadius: 10,
-          }}
-        >
-          <Text>{item.text}</Text>
-        </View>
-      );
-    }
+  const ListHeaderComponent = () => {
+    return <ChatListHeader isLoading={isLoading} />;
+  };
 
-    return <View />;
+  const renderMessages = ({ item }: { item: Message }) => {
+    return <MessageItem message={item} />;
   };
 
   return (
@@ -54,6 +39,8 @@ export const ChatScreen: React.FC = () => {
           renderItem={renderMessages}
           inverted
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={ListHeaderComponent}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
         />
         <ChatInput isLoading={isLoading} addToMessages={addToMessages} />
       </KeyboardAvoidingView>
