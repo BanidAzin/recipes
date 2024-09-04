@@ -7,11 +7,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import uuid from "react-native-uuid";
-import RenderHtml, {
-  HTMLSource,
-  MixedStyleDeclaration,
-} from "react-native-render-html";
-import Markdown from "react-native-markdown-display";
+import RenderHtml from "react-native-render-html";
 
 import { Message, RecipieDetails } from "../ChatScreen";
 
@@ -22,7 +18,6 @@ type MessageItemProps = {
 
 const tagsStyles: any = {
   body: {
-    whiteSpace: "normal",
     color: "white",
   },
   a: {
@@ -42,13 +37,11 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     return (
       <View style={styles.recipieContainer}>
         <Text style={styles.recipieTitle}>{msg.title}</Text>
-        {/* <Markdown>{msg.instructions}</Markdown> */}
         <RenderHtml
           source={source}
           contentWidth={width}
           tagsStyles={tagsStyles}
         />
-        {/* <Text style={styles.botText}>{msg.instructions}</Text> */}
         <View style={styles.ingredientsContainer}>
           {msg.ingredients.map((ingredient) => {
             return (
