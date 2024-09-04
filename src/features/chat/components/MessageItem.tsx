@@ -1,6 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import uuid from "react-native-uuid";
+import RenderHtml, {
+  HTMLSource,
+  MixedStyleDeclaration,
+} from "react-native-render-html";
+import Markdown from "react-native-markdown-display";
 
 import { Message, RecipieDetails } from "../ChatScreen";
 
@@ -9,16 +20,35 @@ type MessageItemProps = {
   addToMessages: (message: Message) => void;
 };
 
+const tagsStyles: any = {
+  body: {
+    whiteSpace: "normal",
+    color: "white",
+  },
+  a: {
+    color: "green",
+  },
+};
+
 export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   addToMessages,
 }) => {
+  const { width } = useWindowDimensions();
+
   if ("title" in message) {
     const msg = message as RecipieDetails;
+    const source = { html: msg.instructions };
     return (
       <View style={styles.recipieContainer}>
         <Text style={styles.recipieTitle}>{msg.title}</Text>
-        <Text style={styles.botText}>{msg.instructions}</Text>
+        {/* <Markdown>{msg.instructions}</Markdown> */}
+        <RenderHtml
+          source={source}
+          contentWidth={width}
+          tagsStyles={tagsStyles}
+        />
+        {/* <Text style={styles.botText}>{msg.instructions}</Text> */}
         <View style={styles.ingredientsContainer}>
           {msg.ingredients.map((ingredient) => {
             return (
