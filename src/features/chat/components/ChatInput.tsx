@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, {
   interpolate,
@@ -7,8 +13,18 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import uuid from "react-native-uuid";
+import { Message } from "../ChatScreen";
 
-export const ChatInput: React.FC = () => {
+type ChatInputProps = {
+  isLoading: boolean;
+  addToMessages: (message: Message) => void;
+};
+
+export const ChatInput: React.FC<ChatInputProps> = ({
+  isLoading = false,
+  addToMessages,
+}) => {
   const [inputMessage, setInputMessage] = useState("");
   const translatePositionX = useSharedValue(0);
 
@@ -25,7 +41,16 @@ export const ChatInput: React.FC = () => {
     }
   };
 
-  const handleSendMessage = () => {};
+  const handleSendMessage = () => {
+    setInputMessage("");
+    Keyboard.dismiss();
+    const message: Message = {
+      id: uuid.v4().toString(),
+      text: inputMessage.trim(),
+      from: "user",
+    };
+    addToMessages(message);
+  };
 
   const micButtonStyle = useAnimatedStyle(() => {
     const translateX = interpolate(translatePositionX.value, [0, 1], [0, 100]);
@@ -56,19 +81,28 @@ export const ChatInput: React.FC = () => {
           onChangeText={onInputChange}
           value={inputMessage}
           multiline
+          editable={!isLoading}
           textAlignVertical="top"
-          style={styles.input}
+          style={[
+            styles.input,
+            isLoading && { opacity: 0.5, borderColor: "transparent" },
+          ]}
         />
       </View>
       <View style={{ flexDirection: "row" }}>
         <Animated.View style={[styles.sendButtonContainer, sendButtonStyle]}>
-          <TouchableOpacity style={styles.sendButton}>
-            <Ionicons name="send" size={20} color="white" />
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={handleSendMessage}
+          >
+            <Ionicons name="send" size={20} color="white" disabled />
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={[micButtonStyle]}>
-          <TouchableOpacity style={styles.micButton}>
-            <Ionicons name="mic" size={20} color="white" />
+        <Animated.View style={[styles.micButtonContainer, micButtonStyle]}>
+          <TouchableOpacity
+            style={[styles.micButton, , isLoading && { opacity: 0.5 }]}
+          >
+            <Ionicons name="mic" size={20} color="white" disabled />
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -90,6 +124,8 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "rgb(62, 62, 62)",
+    borderColor: "green",
+    borderWidth: 1,
     padding: 10,
     borderRadius: 10,
     fontSize: 16,
@@ -98,6 +134,7 @@ const styles = StyleSheet.create({
   },
   sendButtonContainer: {
     position: "absolute",
+    alignSelf: "flex-end",
   },
   sendButton: {
     alignItems: "center",
@@ -106,7 +143,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "green",
   },
+  micButtonContainer: {
+    alignSelf: "flex-end",
+  },
   micButton: {
+    backgroundColor: "rgb(62, 62, 62)",
     borderColor: "green",
     borderWidth: 1,
     padding: 10,
