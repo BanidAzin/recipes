@@ -8,6 +8,22 @@ import { MessageItem } from "./components/MessageItem";
 import { useFetch } from "../../hooks/useFetch";
 import { GET_RECIPE_INFORMATION, SEARCH_RECIPIE } from "../../utils/constants";
 
+export type Ingredient = {
+  id: string;
+  source_id: number;
+  amount: number;
+  name: string;
+  original: string;
+  unit: string;
+};
+export type RecipieDetails = {
+  id: string;
+  source_id: number;
+  title: string;
+  instructions: string;
+  ingredients: Ingredient[];
+};
+
 export type Message = {
   id: string;
   source_id?: string;
@@ -16,7 +32,7 @@ export type Message = {
 };
 
 export const ChatScreen: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<(Message | RecipieDetails)[]>([]);
 
   const { refetch, isLoading } = useFetch({
     endPoint: SEARCH_RECIPIE,
@@ -31,8 +47,7 @@ export const ChatScreen: React.FC = () => {
       fetchRecipieInfo({
         mutationEndPoint: `${message.source_id}/${GET_RECIPE_INFORMATION}`,
         onSuccess: (data) => {
-          const { id, title, instructions, extendedIngredients } = data;
-          console.log({ id });
+          addRecipieToMessages(data);
         },
       });
       return;
@@ -41,11 +56,36 @@ export const ChatScreen: React.FC = () => {
     refetch({
       query: message.text,
       onSuccess: (data) => {
-        console.log({ data });
         const { results } = data;
         addBotMessages(results);
       },
     });
+  };
+
+  const addRecipieToMessages = ({
+    id,
+    title,
+    instructions,
+    extendedIngredients,
+  }: any) => {
+    const ingredients = extendedIngredients.map((item: any) => ({
+      id: uuid.v4().toString(),
+      source_id: item.id,
+      amount: item.amount,
+      name: item.name,
+      original: item.original,
+      unit: item.unit,
+    }));
+
+    const recipieDetails: RecipieDetails = {
+      id: uuid.v4().toString(),
+      source_id: id,
+      title,
+      instructions,
+      ingredients,
+    };
+
+    setMessages((prevMessages) => [recipieDetails, ...prevMessages]);
   };
 
   const addBotMessages = (data: any) => {
@@ -62,7 +102,7 @@ export const ChatScreen: React.FC = () => {
     return <ChatListHeader isLoading={isLoading || loadingFetchRecipeInfo} />;
   };
 
-  const renderMessages = ({ item }: { item: Message }) => {
+  const renderMessages = ({ item }: { item: Message | RecipieDetails }) => {
     return <MessageItem message={item} addToMessages={addUserMessages} />;
   };
 

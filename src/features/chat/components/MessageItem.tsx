@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import uuid from "react-native-uuid";
 
-import { Message } from "../ChatScreen";
+import { Message, RecipieDetails } from "../ChatScreen";
 
 type MessageItemProps = {
-  message: Message;
+  message: Message | RecipieDetails;
   addToMessages: (message: Message) => void;
 };
 
@@ -13,6 +13,27 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   addToMessages,
 }) => {
+  if ("title" in message) {
+    const msg = message as RecipieDetails;
+    return (
+      <View style={styles.recipieContainer}>
+        <Text style={styles.recipieTitle}>{msg.title}</Text>
+        <Text style={styles.botText}>{msg.instructions}</Text>
+        <View style={styles.ingredientsContainer}>
+          {msg.ingredients.map((ingredient) => {
+            return (
+              <View key={ingredient.id} style={styles.ingreadientChip}>
+                <Text style={styles.botText}>{ingredient.name}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
+
+  const msg = message as Message;
+
   const handleOptionPress = () => {
     const newMessage: Message = {
       ...message,
@@ -22,25 +43,53 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     addToMessages(newMessage);
   };
 
-  if (message.from === "user") {
+  if (msg.from === "user") {
     return (
       <View style={styles.userMessageContainer}>
-        <Text style={styles.userText}>{message.text}</Text>
+        <Text style={styles.userText}>{msg.text}</Text>
       </View>
+    );
+  } else if (msg.from === "bot") {
+    return (
+      <TouchableOpacity
+        style={styles.botMessageContainer}
+        onPress={handleOptionPress}
+      >
+        <Text style={styles.botText}>{(message as Message).text}</Text>
+      </TouchableOpacity>
     );
   }
 
-  return (
-    <TouchableOpacity
-      style={styles.botMessageContainer}
-      onPress={handleOptionPress}
-    >
-      <Text style={styles.botText}>{message.text}</Text>
-    </TouchableOpacity>
-  );
+  return;
 };
 
 const styles = StyleSheet.create({
+  recipieContainer: {
+    backgroundColor: "rgb(62, 62, 62)",
+    padding: 10,
+    margin: 5,
+    borderRadius: 10,
+    maxWidth: "100%",
+    marginVertical: 5,
+    gap: 10,
+  },
+  recipieTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  ingredientsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "space-evenly",
+  },
+  ingreadientChip: {
+    backgroundColor: "green",
+    padding: 10,
+    borderRadius: 10,
+  },
   userMessageContainer: {
     backgroundColor: "green",
     padding: 10,
