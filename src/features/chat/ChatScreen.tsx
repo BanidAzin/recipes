@@ -6,7 +6,7 @@ import { ChatInput } from "./components/ChatInput";
 import { ChatListHeader } from "./components/ChatListHeader";
 import { MessageItem } from "./components/MessageItem";
 import { useFetch } from "../../hooks/useFetch";
-import { SEARCH_RECIPIE } from "../../utils/constants";
+import { GET_RECIPE_INFORMATION, SEARCH_RECIPIE } from "../../utils/constants";
 
 export type Message = {
   id: string;
@@ -22,12 +22,28 @@ export const ChatScreen: React.FC = () => {
     endPoint: SEARCH_RECIPIE,
   });
 
+  const { refetch: fetchRecipieInfo, isLoading: loadingFetchRecipeInfo } =
+    useFetch();
+
   const addUserMessages = (message: Message) => {
     setMessages((prevMessages) => [message, ...prevMessages]);
+    if (message.source_id) {
+      fetchRecipieInfo({
+        mutationEndPoint: `${message.source_id}/${GET_RECIPE_INFORMATION}`,
+        onSuccess: (data) => {
+          const { id, title, instructions, extendedIngredients } = data;
+          console.log({ id });
+        },
+      });
+      return;
+    }
+
     refetch({
       query: message.text,
       onSuccess: (data) => {
-        addBotMessages(data);
+        console.log({ data });
+        const { results } = data;
+        addBotMessages(results);
       },
     });
   };
@@ -43,7 +59,7 @@ export const ChatScreen: React.FC = () => {
   };
 
   const ListHeaderComponent = () => {
-    return <ChatListHeader isLoading={isLoading} />;
+    return <ChatListHeader isLoading={isLoading || loadingFetchRecipeInfo} />;
   };
 
   const renderMessages = ({ item }: { item: Message }) => {
@@ -65,7 +81,10 @@ export const ChatScreen: React.FC = () => {
           ListHeaderComponent={ListHeaderComponent}
           contentContainerStyle={{ paddingHorizontal: 10 }}
         />
-        <ChatInput isLoading={isLoading} addToMessages={addUserMessages} />
+        <ChatInput
+          isLoading={isLoading || loadingFetchRecipeInfo}
+          addToMessages={addUserMessages}
+        />
       </KeyboardAvoidingView>
     </View>
   );
