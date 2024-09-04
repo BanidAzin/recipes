@@ -4,11 +4,15 @@ A brief description of your project.
 
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Features](#features)
-- [Contributing](#contributing)
-- [License](#license)
+
+## Prerequisites
+
+- Node.js (>= 14.x)
+- npm or yarn
+- Expo CLI (npm install -g expo-cli)
 
 ## Installation
 
@@ -23,5 +27,5 @@ A brief description of your project.
 
 To start the app, run the following command:
 
-    npm expo start
+    npx expo start
     
